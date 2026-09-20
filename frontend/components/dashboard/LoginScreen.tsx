@@ -3,21 +3,24 @@
 import { useState, type FormEvent } from "react";
 import Image from "next/image";
 import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Button } from "@/components/ui/Button";
 import { business } from "@/lib/site-content";
-import { roles, type Role } from "@/lib/dashboard";
+import type { Role } from "@/lib/dashboard";
+
+// No account system yet, so a real login always signs in as the same
+// starting role. The role switcher at the bottom of the dashboard sidebar
+// (see RoleSwitcher.tsx) is where each role's view is previewed.
+const DEFAULT_ROLE: Role = "OWNER_ADMIN";
 
 /**
  * Staff login screen (prd.md FR-A1). No real authentication yet: any
- * email and password is accepted, and the role picker exists only so the
- * dashboard can be previewed for each role until real accounts and RBAC
- * are built on the backend (see api-spec.md, POST /auth/login).
+ * email and password is accepted (see api-spec.md, POST /auth/login, for
+ * what the real endpoint will do).
  */
 export function LoginScreen({ onLogin }: { onLogin: (role: Role) => void }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<Role>("OWNER_ADMIN");
   const [error, setError] = useState<string | undefined>();
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -26,7 +29,7 @@ export function LoginScreen({ onLogin }: { onLogin: (role: Role) => void }) {
       setError("Enter an email and password to continue.");
       return;
     }
-    onLogin(role);
+    onLogin(DEFAULT_ROLE);
   }
 
   return (
@@ -48,31 +51,19 @@ export function LoginScreen({ onLogin }: { onLogin: (role: Role) => void }) {
             name="email"
             type="email"
             autoComplete="username"
+            placeholder="you@beehive-hvac.com"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
           />
-          <Input
+          <PasswordInput
             label="Password"
             name="password"
-            type="password"
             autoComplete="current-password"
+            placeholder="Enter your password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             error={error}
           />
-          <Select
-            label="Sign in as (preview)"
-            name="role"
-            value={role}
-            onChange={(event) => setRole(event.target.value as Role)}
-            hint="No account system yet. Choose a role to preview its view of the dashboard."
-          >
-            {roles.map((item) => (
-              <option key={item.value} value={item.value}>
-                {item.label}
-              </option>
-            ))}
-          </Select>
 
           <Button type="submit" className="w-full">
             Log in

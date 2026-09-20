@@ -1,19 +1,19 @@
-import { Fragment } from "react";
 import { business } from "@/lib/site-content";
 
 /**
- * Renders the hours as a two-column grid so the day and time line up
- * across rows, unlike a per-row flex pair where each row aligns only with
- * itself. Shared by the footer and the contact page so both stay in sync.
+ * Renders each entry as day, then time on its own line below it, so a
+ * longer day range or time span never has to break mid-line to fit a
+ * narrow column. Shared by the footer and the contact page so both stay
+ * in sync.
  */
 export function BusinessHours() {
   return (
-    <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+    <dl className="flex flex-col gap-3">
       {business.hours.map((row) => (
-        <Fragment key={row.day}>
-          <dt className="text-muted">{row.day}</dt>
-          <dd>{row.time}</dd>
-        </Fragment>
+        <div key={row.day}>
+          <dt className="text-[14px] text-muted">{row.day}</dt>
+          <dd className="text-[16px]">{row.time}</dd>
+        </div>
       ))}
     </dl>
   );

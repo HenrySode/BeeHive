@@ -43,7 +43,10 @@ export type NavKey =
   | "communications"
   | "reports"
   | "services"
-  | "users";
+  | "users"
+  // Opened from the account menu, not the sidebar, so it is deliberately
+  // not part of navItems below.
+  | "profile";
 
 export type NavGroup = "workspace" | "manage";
 
@@ -149,14 +152,97 @@ export const sampleMyJobs = [
   { time: "1:00 PM", customer: "Priya Nandan", service: "Mini-split installation", status: "Scheduled" },
 ];
 
+export const sampleNotifications = [
+  { title: "New service request from Dana Whitfield", time: "9 minutes ago" },
+  { title: "Appointment with Marcus Yee starts in 30 minutes", time: "1 hour ago" },
+  { title: "Seasonal maintenance reminder sent to 12 customers", time: "Yesterday" },
+];
+
 export const sampleCommunications = [
   { customer: "Marcus Yee", channel: "Email", template: "Appointment confirmation", sentAt: "Today, 8:50 AM" },
   { customer: "Furnace owners segment", channel: "SMS", template: "Seasonal maintenance reminder", sentAt: "Yesterday" },
 ];
 
-export const sampleUsers = [
-  { name: "Alicia Moreno", email: "alicia@beehive-hvac.com", role: "OWNER_ADMIN" as Role, active: true },
-  { name: "Jordan Alvarez", email: "jordan@beehive-hvac.com", role: "FIELD_TECHNICIAN" as Role, active: true },
-  { name: "Sam Park", email: "sam@beehive-hvac.com", role: "FIELD_TECHNICIAN" as Role, active: true },
-  { name: "Riley Chen", email: "riley@beehive-hvac.com", role: "OFFICE_CS" as Role, active: false },
+export type StaffAccount = {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  nextOfKinName: string;
+  nextOfKinPhone: string;
+};
+
+export type StaffUser = StaffAccount & { role: Role; active: boolean };
+
+export const sampleUsers: StaffUser[] = [
+  {
+    name: "Alicia Moreno",
+    email: "alicia@beehive-hvac.com",
+    role: "OWNER_ADMIN" as Role,
+    active: true,
+    phone: "(555) 042-1188",
+    address: "214 Maple Street, Riverdale",
+    nextOfKinName: "Daniel Moreno",
+    nextOfKinPhone: "(555) 042-9021",
+  },
+  {
+    name: "Morgan Ellis",
+    email: "morgan@beehive-hvac.com",
+    role: "MANAGER_DISPATCHER" as Role,
+    active: true,
+    phone: "(555) 042-3345",
+    address: "88 Birchwood Lane, Riverdale",
+    nextOfKinName: "Casey Ellis",
+    nextOfKinPhone: "(555) 042-3346",
+  },
+  {
+    name: "Riley Chen",
+    email: "riley@beehive-hvac.com",
+    role: "OFFICE_CS" as Role,
+    active: false,
+    phone: "(555) 042-7790",
+    address: "37 Cedar Court, Riverdale",
+    nextOfKinName: "Jamie Chen",
+    nextOfKinPhone: "(555) 042-7791",
+  },
+  {
+    name: "Jordan Alvarez",
+    email: "jordan@beehive-hvac.com",
+    role: "FIELD_TECHNICIAN" as Role,
+    active: true,
+    phone: "(555) 042-5512",
+    address: "129 Oakview Drive, Riverdale",
+    nextOfKinName: "Elena Alvarez",
+    nextOfKinPhone: "(555) 042-5513",
+  },
+  {
+    name: "Sam Park",
+    email: "sam@beehive-hvac.com",
+    role: "FIELD_TECHNICIAN" as Role,
+    active: true,
+    phone: "(555) 042-6634",
+    address: "5 Willow Way, Riverdale",
+    nextOfKinName: "Jin Park",
+    nextOfKinPhone: "(555) 042-6635",
+  },
 ];
+
+/**
+ * Stands in for "the logged in user" in the account menu and the profile
+ * page. There is no account system yet, so this just returns the first
+ * sample user with a matching role (see RoleSwitcher.tsx for how the role
+ * itself is chosen).
+ */
+export function sampleUserForRole(role: Role): StaffAccount {
+  const match = sampleUsers.find((user) => user.role === role);
+  return (
+    match ?? {
+      name: roleLabel(role),
+      email: "",
+      phone: "",
+      address: "",
+      nextOfKinName: "",
+      nextOfKinPhone: "",
+    }
+  );
+}

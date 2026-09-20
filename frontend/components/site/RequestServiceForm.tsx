@@ -7,7 +7,8 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { services } from "@/lib/services";
+import { services, getServiceBySlug } from "@/lib/services";
+import { addSubmittedRequest } from "@/lib/liveActivity";
 
 type FormValues = {
   name: string;
@@ -57,6 +58,11 @@ function validate(values: FormValues): Errors {
  * state, and the confirmation screen all behave as they will once the form
  * posts to the real endpoint. Wiring the fetch call is a backend task, not
  * a design change.
+ *
+ * On success, the request is also written to the shared store in
+ * lib/liveActivity.ts, so it shows up in the dashboard's Service Requests
+ * panel, the notification bell, and the Customers panel in the same
+ * browser, standing in for the real request reaching a manager.
  */
 export function RequestServiceForm() {
   const [values, setValues] = useState<FormValues>(initialValues);
@@ -83,6 +89,17 @@ export function RequestServiceForm() {
 
     setStatus("submitting");
     window.setTimeout(() => {
+      const service = getServiceBySlug(values.serviceType);
+      addSubmittedRequest({
+        name: values.name,
+        email: values.email,
+        phone: values.phone,
+        address: values.address,
+        serviceLabel: service?.name ?? "Not sure yet",
+        message: values.message,
+        preferredDate: values.preferredDate,
+        preferredTime: values.preferredTime,
+      });
       setStatus("submitted");
     }, 600);
   }

@@ -26,6 +26,11 @@ export function Input({ label, error, hint, id, className, ...props }: InputProp
         )}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined}
+        // Chromium injects its own style (e.g. caret-color) into inputs it
+        // recognises as part of a login form, after hydration. That's a
+        // browser autofill behaviour, not a real mismatch, so it's
+        // suppressed here rather than left as noise in every login form.
+        suppressHydrationWarning
         {...props}
       />
       {error ? (

@@ -2,21 +2,22 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { PanelLeftClose, PanelLeftOpen, Menu, LogOut } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { business } from "@/lib/site-content";
 import { RoleSwitcher } from "@/components/dashboard/RoleSwitcher";
+import { TopBar } from "@/components/dashboard/TopBar";
+import { UsersPanel } from "@/components/dashboard/UsersPanel";
+import { ProfilePanel } from "@/components/dashboard/ProfilePanel";
+import { RequestsPanel } from "@/components/dashboard/RequestsPanel";
+import { CustomersPanel } from "@/components/dashboard/CustomersPanel";
 import { navItemsForRole, type NavItem, type NavKey, type Role } from "@/lib/dashboard";
 import {
   OverviewPanel,
-  RequestsPanel,
-  CustomersPanel,
   SchedulePanel,
   MyJobsPanel,
   CommunicationsPanel,
   ReportsPanel,
   ServicesPanel,
-  UsersPanel,
 } from "@/components/dashboard/Panels";
 
 function renderPanel(key: NavKey, role: Role) {
@@ -39,6 +40,8 @@ function renderPanel(key: NavKey, role: Role) {
       return <ServicesPanel role={role} />;
     case "users":
       return <UsersPanel />;
+    case "profile":
+      return <ProfilePanel role={role} />;
     default:
       return null;
   }
@@ -86,9 +89,13 @@ function NavButton({
  * The sidebar follows the structural pattern of claude.ai's own app shell:
  * a collapsible left sidebar (full width with labels, or a narrow icon
  * rail), nav items grouped into a primary "Workspace" section and a
- * secondary "Manage" section, and a minimal top bar whose only job is the
- * sidebar toggle and the account/session control. Only the structure is
+ * secondary "Manage" section, and a top bar for the sidebar toggle,
+ * search, notifications, and the account menu. Only the structure is
  * borrowed; every colour still comes from design-system.md.
+ *
+ * The whole shell is locked to the viewport height: the sidebar (header,
+ * nav, and the role switcher at its foot) and the top bar never scroll,
+ * only the <main> panel content does.
  */
 export function DashboardShell({
   initialRole,
@@ -119,7 +126,7 @@ export function DashboardShell({
   }
 
   return (
-    <div className="flex min-h-screen bg-canvas">
+    <div className="flex h-screen overflow-hidden bg-canvas">
       {mobileOpen ? (
         <button
           type="button"
@@ -182,40 +189,16 @@ export function DashboardShell({
         </div>
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-16 shrink-0 items-center justify-between gap-4 border-b border-hairline px-4 lg:px-6">
-          <button
-            type="button"
-            onClick={() => setMobileOpen(true)}
-            aria-label="Open menu"
-            className="flex h-9 w-9 items-center justify-center rounded-md text-ink hover:bg-surface-soft lg:hidden"
-          >
-            <Menu size={20} aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            onClick={() => setCollapsed((value) => !value)}
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className="hidden h-9 w-9 items-center justify-center rounded-md text-ink hover:bg-surface-soft lg:flex"
-          >
-            {collapsed ? (
-              <PanelLeftOpen size={20} aria-hidden="true" />
-            ) : (
-              <PanelLeftClose size={20} aria-hidden="true" />
-            )}
-          </button>
-
-          <div className="flex-1" />
-
-          <button
-            type="button"
-            onClick={onLogout}
-            className="flex items-center gap-2 text-[14px] font-medium text-ink"
-          >
-            <LogOut size={18} aria-hidden="true" />
-            Log out
-          </button>
-        </header>
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <TopBar
+          role={role}
+          collapsed={collapsed}
+          onOpenMobileMenu={() => setMobileOpen(true)}
+          onToggleCollapse={() => setCollapsed((value) => !value)}
+          onOpenProfile={() => setActive("profile")}
+          onOpenRequests={() => setActive("requests")}
+          onLogout={onLogout}
+        />
 
         <main className="flex-1 overflow-y-auto bg-canvas p-6 lg:p-10">
           {renderPanel(active, role)}
